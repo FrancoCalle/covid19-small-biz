@@ -36,8 +36,6 @@ qCode =  ['Q2.1_1','Q2.1_2',
 for var in qCode:
     surveyData['p'+var] = surveyData[var].astype(float)
 
-
-
 surveyData = surveyData.dropna(subset=['pQ2.1_1'])
 surveyData['totEmp'] = surveyData['pQ2.1_1'] + surveyData['pQ2.1_2']
 surveyData['noemp'] = (surveyData['totEmp'] == 0) | (surveyData['totEmp'] > 300)
@@ -50,10 +48,15 @@ print("PLOT FIRST FIGURES ...")
 
 print('Figure 1: Number of Full time employees')
 sns.distplot(surveyData['pQ2.1_1'])
+ax.set(xlabel='Number of full time employees', ylabel='Density')
+
 print('Figure 2: Number of Part time employees')
 sns.distplot(surveyData['pQ2.1_2'])
+ax.set(xlabel='Number of part time employees', ylabel='Density')
+
 print('Figure 3: Number of total employees')
-sns.countplot(x = surveyData['totEmp'])
+sns.countplot(x = surveyData['totEmp'].astype(int))
+ax.set(xlabel='Total Employees', ylabel='Number of Firms')
 
 surveyData['totEmpByGroup'] = list(map(lambda x: 'Independent' if  x == 1 else
                                                 (']2 5]' if 1 < x <= 5 else
@@ -76,7 +79,8 @@ surveyData['pQ3.2_2'] = surveyData['pQ3.2_2'].fillna(0)
 
 print('Figure 6: Number of employees laid off')
 surveyData['totUnemp'] = surveyData['pQ3.2_1'] + surveyData['pQ3.2_2']
-sns.countplot(x =surveyData['totUnemp'])
+sns.countplot(x =surveyData['totUnemp'].astype(int))
+ax.set(xlabel='Total number of people laid off', ylabel='Number of firms')
 
 surveyData['totUnempByGroup'] = list(map(lambda x: 'No unemp' if x == 0 else
                                                 ('[1 5]' if 1 <= x <= 5 else
