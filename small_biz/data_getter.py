@@ -15,14 +15,9 @@ import pandas as pd
 import requests
 
 
-def export_data(surv_id: str) -> pd.DataFrame:
+def export_data(surv_name: str) -> pd.DataFrame:
     """
     export current data for a specific survey id into a pandas dataframe
-
-    survey ids are as follows:
-        2020-biz-survey-latam       | SV_d6ZulWfxVdP6brf
-        2020-biz-survey-us          | SV_5pOfQn2X4uYUZpz
-        2020-biz-survey-us-invite   | SV_6lYENZ8l1DQTu4d
 
     Args:
         surv_id (str): survey id
@@ -30,12 +25,19 @@ def export_data(surv_id: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: survey responses
     """
+    surv_ids = {'latam': 'SV_d6ZulWfxVdP6brf',
+                'us': 'SV_5pOfQn2X4uYUZpz',
+                'us-invite': 'SV_6lYENZ8l1DQTu4d'}
+
+    if surv_name not in surv_ids:
+        raise KeyError(f'surv_name must be in {set(surv_ids.keys())}')
+
     # set up values
     api_key = os.environ['QUAL_APIKEY']
     prog_check = 0.0
     prog_status = 'inProgress'
     url = ('https://princetonsurvey.az1.qualtrics.com/API/v3/surveys/{}/'
-           'export-responses/'.format(surv_id))
+           'export-responses/'.format(surv_ids[surv_name]))
     headers = {'content-type': 'application/json',
                'x-api-token': api_key}
     data_kwds = {"format": "csv"}
@@ -59,7 +61,7 @@ def export_data(surv_id: str) -> pd.DataFrame:
         req_check_prog = req_check_resp.json()['result']['percentComplete']
 
         if ready is None:
-            print(f'Not Ready | Progress = {req_check_prog:.2f}')
+            print(f'Progress = {req_check_prog:.2f}')
 
         try:
             ready = req_check_resp.json()['result']['fileId']
@@ -67,6 +69,8 @@ def export_data(surv_id: str) -> pd.DataFrame:
             pass
 
         prog_status = req_check_resp.json()['result']['status']
+        if prog_status == 'complete':
+            print(f'Progress = {req_check_prog:.2f}')
 
     # check for errors
     if prog_status == 'failed':
@@ -83,8 +87,15 @@ def export_data(surv_id: str) -> pd.DataFrame:
     # extract from zip into pandas dataframe
     df = pd.read_csv(io.BytesIO(req_dl.content), compression='zip')
 
+    # drop qualtric headers
+    df = df.iloc[2:, :].copy()
+    df.reset_index(inplace=True, drop=True)
+
+    # lowercase cols
+    df.columns = df.columns.str.lower()
+
     return df
 
 
 if __name__ == "__main__":
-    df = export_data(surv_id='SV_6lYENZ8l1DQTu4d')
+    df = export_data(surv_name='latam')
