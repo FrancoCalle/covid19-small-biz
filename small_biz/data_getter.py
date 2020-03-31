@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Monday, 30th March 2020 7:36:30 pm
 ===============================================================================
 @filename:  data_getter.py
@@ -7,7 +7,7 @@ Created on Monday, 30th March 2020 7:36:30 pm
 @project:   covid 19 - small business survey
 @purpose:   general purpose code for getting data from qualtrics api
 ===============================================================================
-"""
+'''
 import io
 import os
 
@@ -16,7 +16,7 @@ import requests
 
 
 def export_data(surv_name: str) -> pd.DataFrame:
-    """
+    '''
     export current data for a specific survey id into a pandas dataframe
 
     Args:
@@ -24,7 +24,7 @@ def export_data(surv_name: str) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: survey responses
-    """
+    '''
     surv_ids = {'latam': 'SV_d6ZulWfxVdP6brf',
                 'us': 'SV_5pOfQn2X4uYUZpz',
                 'us-invite': 'SV_6lYENZ8l1DQTu4d'}
@@ -40,7 +40,8 @@ def export_data(surv_name: str) -> pd.DataFrame:
            'export-responses/'.format(surv_ids[surv_name]))
     headers = {'content-type': 'application/json',
                'x-api-token': api_key}
-    data_kwds = {"format": "csv"}
+    data_kwds = {'format': 'csv',
+                 'useLabels': True}
     ready = None
 
     # start up download from server
@@ -97,5 +98,5 @@ def export_data(surv_name: str) -> pd.DataFrame:
     return df
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     df = export_data(surv_name='latam')
