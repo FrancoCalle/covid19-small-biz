@@ -15,7 +15,7 @@ import pandas as pd
 import requests
 
 
-def export_data(surv_name: str) -> pd.DataFrame:
+def get_surv_data(surv_name: str) -> pd.DataFrame:
     '''
     export current data for a specific survey id into a pandas dataframe
 
