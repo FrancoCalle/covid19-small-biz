@@ -99,4 +99,4 @@ def get_surv_data(surv_name: str) -> pd.DataFrame:
 
 
 if __name__ == '__main__':
-    df = export_data(surv_name='latam')
+    df = get_surv_data(surv_name='latam')
