@@ -3,6 +3,11 @@ import pandas as pd
 import numpy as np
 import socket
 import seaborn as sns
+from small_biz.data_getter import get_surv_data 
+
+#1. Import data
+print("IMPORT DATA ...")
+surveyData = get_surv_data('us')
 
 #if statement to identify where's the dropbox with data:
 countryTag = 'us'
@@ -150,7 +155,7 @@ print('Figure: time for recovery (in months)') # Dashboard
 timeRecovery = surveyData['Q5.2'].copy()
 timeRecovery.dropna(inplace=True)
 ax = sns.countplot(timeRecovery.astype(int), color='salmon')
-ax.set(xlabel='Number of months', ylabel='Number of businesses')
+ax.set(xlabel='Estimated time for recovery (in months)', ylabel='Number of businesses')
 
 print('Figure: avg time for recovery, by size of firm') # MEMO
 ax = sns.barplot(x = surveyData['totEmpByGroup'], 
