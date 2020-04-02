@@ -29,14 +29,18 @@ for var in qCode:
 
 surveyData = surveyData.dropna(subset=['pq2.1_1'])
 surveyData['totEmp'] = surveyData['pq2.1_1'] + surveyData['pq2.1_2']
-surveyData['noemp'] = (surveyData['totEmp'] == 0) | (surveyData['totEmp'] > 300)
-surveyData  = surveyData.loc[surveyData['noemp'] != True,:] #Eliminate all bussineses without employeess
+
+# Don't drop them for now 
+# surveyData['noemp'] = (surveyData['totEmp'] == 0) | (surveyData['totEmp'] > 300)
+# surveyData  = surveyData.loc[surveyData['noemp'] != True,:] #Eliminate all bussineses without employeess
+
 surveyData['noLayOffFirm'] = (surveyData['pq3.1'] == 0) & (surveyData['pq4.1'] == 0)
 surveyData['noLayOffFirm'].sum()/surveyData['noLayOffFirm'].shape[0]
 
 #%%
 print("PLOT MEMO FIGURES ...")
 
+#%% Number of employees
 
 print('Figure 3: Number of total employees') # MEMO
 #ax = sns.countplot(surveyData['totEmp'].astype(int), color='salmon')
@@ -46,15 +50,29 @@ ax.set(xlabel='Total Employees', ylabel='Number of Businesses')
 
 
 print('Figure: Number of total employees, binned') # MEMO
-surveyData['totEmpByGroup'] = list(map(lambda x: '1 employee' if  x == 1 else
-                                                ('2 to 5' if 1 < x <= 5 else
+surveyData['totEmpByGroup'] = list(map(lambda x: '0 employees' if  x == 0 else
+                                                ('1 to 5' if 1 <= x <= 5 else
                                                 ('6 to 10' if 5 < x <= 10 else
                                                 ('11 to 30' if 10 < x <= 30 else
                                                 ('31 to 50' if 30 < x <= 50 else 'More than 50')))),
                                                 surveyData['totEmp']))
-firmSizeCategories= ['1 employee','2 to 5','6 to 10','11 to 30','31 to 50', 'More than 50']
+firmSizeCategories= ['0 employees','1 to 5','6 to 10','11 to 30','31 to 50', 'More than 50']
 ax = sns.countplot(x = surveyData['totEmpByGroup'], order=firmSizeCategories,color='salmon')
 ax.set(xlabel='Size of business', ylabel='Number of businesses')
+
+#%% Lay offs
+
+print('Figure: Number of full time employees laid off, by size of business') # MEMO
+ax = sns.barplot(x = surveyData['totEmpByGroup'],
+                 y = surveyData['pq3.2_1'], order=firmSizeCategories, color='salmon')
+ax.set(xlabel='Size of business', ylabel='Number of full-time employees laid off')
+
+
+
+print('Figure: Number of part time employees laid off, by size of business') # MEMO
+ax = sns.barplot(x = surveyData['totEmpByGroup'],
+                 y = surveyData['pq3.2_2'], order=firmSizeCategories, color='salmon')
+ax.set(xlabel='Size of business', ylabel='Number of part-time employees laid off')
 
 
 
@@ -74,6 +92,22 @@ ax.set(xlabel='Number of people laid off', ylabel='Number of businesses')
 
 
 
+print('Figure: Number of employees laid off, by size of business') # MEMO
+ax = sns.barplot(x = surveyData['totEmpByGroup'],
+                 y = surveyData['totUnemp'], order=firmSizeCategories, color='salmon')
+ax.set(xlabel='Size of business', ylabel='Total employees laid off')
+
+
+print('Figure: Number of prospective layoffs, by size of business') # MEMO
+surveyData['pq4.2_1'] = surveyData['pq4.2_1'].fillna(0)
+surveyData['pq4.2_2'] = surveyData['pq4.2_2'].fillna(0)
+surveyData['totMoreLayoffs'] = surveyData['pq4.2_1'] + surveyData['pq4.2_2']
+ax = sns.barplot(x = surveyData['totEmpByGroup'],
+                 y = surveyData['totMoreLayoffs'], order=firmSizeCategories, color='salmon')
+ax.set(xlabel='Size of business', ylabel='Estimated additional layoffs')
+
+
+
 print('Figure: Share of employees laid off') # MEMO
 surveyData['firm_layoffShare'] = surveyData['totUnemp']/surveyData['totEmp']
 ax = sns.distplot(surveyData['firm_layoffShare'], bins=10, kde=False,color='salmon')
@@ -84,6 +118,7 @@ ax.set(xlabel='Share of laid off employees', ylabel='Numer of businesses')
 # 62% of firms in our survey have laid off at least 1 employee
 
 
+#%% Expectations: Recovery, Bankruptcy
 
 print('Figure: time for recovery (in months)') # MEMO and Dashboard
 #surveyData['q5.2'] = surveyData['q5.2'].fillna(0)
@@ -111,6 +146,14 @@ ax.legend()
 ax.set(xlabel='Probability of filing bankruptcy in the next 6 months', ylabel='Density')
 
 
+print('Figure: Probability of bankruptcy')
+ax = sns.distplot(surveyData['pq6.1_2'], kde=False, color='salmon')
+ax.set(xlabel='Probability of filing for bankruptcy in the next 6 months', ylabel='Number of businesses')
+
+
+
+
+#%% Awareness of different programs
 
 print('Figure: Awareness Rate by Business Size') # memo
 surveyData['counter'] = 1
@@ -119,7 +162,7 @@ surveyDataByGroup['awarenessRate'] = surveyDataByGroup['pq7.1']/ surveyDataByGro
 ax = sns.barplot(x = surveyDataByGroup.index, y = surveyDataByGroup['awarenessRate'],
                  order=firmSizeCategories, color='salmon')
 ax.set(xlabel='Size of business', ylabel='Percentage aware of any govt. relief measures')
-
+#sns.savefig('D:/Dropbox (Personal)/small-biz-2020/writeup/Figures/US_Awareness_bySize.eps', format='eps')
 
 
 print('Figure: % who know about policy X, conditional on declaring they know something')
@@ -134,3 +177,7 @@ ax.set(ylabel='Share of owners who know the policy')
 toexport = surveyData[['q12.1','q12.2']].copy()
 
 toexport.to_csv('long_responses.csv')
+
+
+
+
