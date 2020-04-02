@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import socket
 import seaborn as sns
-from small_biz.data_getter import get_surv_data 
+from small_biz.data_getter import get_surv_data
 
 #1. Import data
 print("IMPORT DATA ...")
@@ -61,7 +61,7 @@ print('Figure 2: Number of Part time employees')
 sns.distplot(surveyData['pq2.1_2'])
 ax.set(xlabel='Number of part time employees', ylabel='Density')
 
-print('Figure 3: Number of total employees') 
+print('Figure 3: Number of total employees')
 sns.countplot(x = surveyData['totEmp'].astype(int))
 ax.set(xlabel='Total Employees', ylabel='Number of Firms')
 
@@ -75,7 +75,7 @@ surveyData['totEmpByGroup'] = list(map(lambda x: '1 employee' if  x == 1 else
                                                 ('2 to 5' if 1 < x <= 5 else
                                                 ('6 to 10' if 5 < x <= 10 else
                                                 ('11 to 30' if 10 < x <= 30 else
-                                                ('31 to 50' if 30 < x <= 50 else 'More than 50')))), 
+                                                ('31 to 50' if 30 < x <= 50 else 'More than 50')))),
                                                 surveyData['totEmp']))
 
 firmSizeCategories= ['1 employee','2 to 5','6 to 10','11 to 30','31 to 50', 'More than 50']
@@ -102,9 +102,9 @@ surveyData['totUnempByGroup'] = list(map(lambda x: 'No layoffs' if x == 0 else
                                                 ('1 to 5' if 1 <= x <= 5 else
                                                 ('6 to 10' if 5 < x <= 10 else
                                                 ('11 to 30' if 10 < x <= 30 else
-                                                ('31 to 50' if 30 < x <= 50 else 'More than 50')))), 
+                                                ('31 to 50' if 30 < x <= 50 else 'More than 50')))),
                                                 surveyData['totUnemp']))
-ax = sns.countplot(x = surveyData['totUnempByGroup'], 
+ax = sns.countplot(x = surveyData['totUnempByGroup'],
                    order=['No layoffs', '1 to 5','6 to 10','11 to 30','31 to 50', 'More than 50'],color='salmon')
 ax.set(xlabel='Number of people laid off', ylabel='Number of businesses')
 
@@ -125,7 +125,7 @@ print('Figure: Share of employees laid off') # MEMO
 surveyData['firm_layoffShare'] = surveyData['totUnemp']/surveyData['totEmp']
 ax = sns.distplot(surveyData['firm_layoffShare'], bins=10, kde=False,color='salmon')
 ax.set(xlabel='Share of laid off employees', ylabel='Numer of businesses')
-# np.median(surveyData['firm_layoffShare']) 
+# np.median(surveyData['firm_layoffShare'])
 # Median firm in our survey has laid off 2/3 of their employees
 # np.mean(surveyData['pq3,1'])
 # 62% of firms in our survey have laid off at least 1 employee
@@ -144,7 +144,7 @@ print('Figure: prob of recovery in next two years by size of firm')
 surveyData['counter'] = 1
 surveyDataByGroup = surveyData[['pq5.1','counter','totEmpByGroup']].groupby(['totEmpByGroup']).sum()
 surveyDataByGroup['optimistRate'] = surveyDataByGroup['pq5.1']/ surveyDataByGroup['counter']
-ax = sns.barplot(x = surveyDataByGroup.index, y = surveyDataByGroup['optimistRate'], 
+ax = sns.barplot(x = surveyDataByGroup.index, y = surveyDataByGroup['optimistRate'],
                  order=firmSizeCategories, color='salmon')
 ax.set(xlabel='Firm Size', ylabel='Percentage thinks will recover within 2 years')
 # np.mean(surveyData['pq5.1'])  68.7% think YES recovery in < 2 years
@@ -159,7 +159,7 @@ ax = sns.countplot(timeRecovery.astype(int), color='salmon')
 ax.set(xlabel='Estimated time for recovery (in months)', ylabel='Number of businesses')
 
 print('Figure: avg time for recovery, by size of firm') # MEMO
-ax = sns.barplot(x = surveyData['totEmpByGroup'], 
+ax = sns.barplot(x = surveyData['totEmpByGroup'],
                  y = surveyData['pq5.2'], order=firmSizeCategories, color='salmon')
 ax.set(xlabel='Size of business', ylabel='Estimated time for recovery (in months)')
 
@@ -176,8 +176,8 @@ ax.set(xlabel='Probability of filing bankruptcy in the next 6 months', ylabel='D
 
 
 print('Figure 10: Average probability to file bankruptcy by firm size')
-ax = sns.barplot(x = 'totEmpByGroup', 
-                 y = 'probBankruptcy', data = surveyData, 
+ax = sns.barplot(x = 'totEmpByGroup',
+                 y = 'probBankruptcy', data = surveyData,
                  order = firmSizeCategories, color='salmon')
 ax.set(xlabel='Size of business', ylabel='Average probability of bankruptcy')
 
@@ -186,14 +186,14 @@ ax.set(xlabel='Size of business', ylabel='Average probability of bankruptcy')
 print('Figure: Awareness of government aid')
 ax = sns.countplot(surveyData['q7.1'], color='salmon')
 ax = sns.countplot(surveyData['pq7.1'], color='salmon')
-# 67% are aware of some kind of aid 
+# 67% are aware of some kind of aid
 
-print('Figure: Awareness Rate by Business Size') # memo 
+print('Figure: Awareness Rate by Business Size') # memo
 surveyData['counter'] = 1
 surveyDataByGroup = surveyData[['pq7.1','counter','totEmpByGroup']].groupby(['totEmpByGroup']).sum()
 surveyDataByGroup['awarenessRate'] = surveyDataByGroup['pq7.1']/ surveyDataByGroup['counter']
 
-ax = sns.barplot(x = surveyDataByGroup.index, y = surveyDataByGroup['awarenessRate'], 
+ax = sns.barplot(x = surveyDataByGroup.index, y = surveyDataByGroup['awarenessRate'],
                  order=firmSizeCategories, color='salmon')
 ax.set(xlabel='Size of business', ylabel='Percentage aware of govt. relief measures')
 
@@ -202,7 +202,7 @@ ax.set(xlabel='Size of business', ylabel='Percentage aware of govt. relief measu
 np.mean(surveyData['pq7.2_1']) # 87% know policies for loans
 np.mean(surveyData['pq7.2_2']) # 66% know policies covering wages
 np.mean(surveyData['pq7.2_3']) # 34% know policies covering rent
-np.mean(surveyData['pq7.2_4']) # 45% know about policies to defer payments 
+np.mean(surveyData['pq7.2_4']) # 45% know about policies to defer payments
 
 
 
@@ -211,4 +211,3 @@ data = surveyData[surveyData['pq7.1']==1].copy()
 toplot = data[['pq7.2_1','pq7.2_2','pq7.2_3','pq7.2_4']].sum()/data['pq7.1'].sum()
 
 ax = sns.barplot(x = ['Loans','Cover wages','Cover rent','Defer payments'],y = toplot, color='salmon')
-
